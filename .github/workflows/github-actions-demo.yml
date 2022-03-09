@@ -6,6 +6,10 @@ jobs:
     env:
       TEMPLATE_FILE: cicd/3-app/app.template.yml
       ARTIFACT_STORE: cicddemo-deps-artifactstore-1muobhcejf2so
+    # These permissions are needed to interact with GitHub's OIDC Token endpoint.
+    permissions:
+      id-token: write
+      contents: read
     steps:
       - run: echo "🎉 The job was automatically triggered by a ${{ github.event_name }} event."
       - run: echo "🐧 This job is now running on a ${{ runner.os }} server hosted by GitHub!"
