@@ -12,20 +12,20 @@ jobs:
       - run: echo "💡 The ${{ github.repository }} repository has been cloned to the runner."
       - run: echo "🖥️ The workflow is now ready to test your code on the runner."
       - name: List files in the repository
-        run: |
-          ls ${{ github.workspace }}
+        run: ls ${{ github.workspace }}
       - name: Configure convenience variables
         run: |
           BRANCH_NAME=${CODEBUILD_WEBHOOK_HEAD_REF##*/}
           ARTIFACT_PATH=branch/$BRANCH_NAME/$CODEBUILD_BUILD_NUMBER
           TEMPLATE_FILE=cicd/3-app/app.template.yml
       - name: build project
-        run: |
-          ./build.sh
+        run: ./build.sh
+      - name: Lint cloudformation template
+        uses: scottbrenner/cfn-lint-action@v2
+        with:
+          command: cfn-lint -t $TEMPLATE_FILE
       - name: package cloudformation template
-        run: |
-          cfn-lint $TEMPLATE_FILE
-          aws cloudformation package --template-file $TEMPLATE_FILE --output-template-file cloudformation-output.yml --s3-bucket $ARTIFACT_STORE --s3-prefix "$ARTIFACT_PATH/cloudformation-package"
+        run: aws cloudformation package --template-file $TEMPLATE_FILE --output-template-file cloudformation-output.yml --s3-bucket $ARTIFACT_STORE --s3-prefix "$ARTIFACT_PATH/cloudformation-package"
       - name: zip and upload artifacts
         run: |
           zip dist.zip dist -r
