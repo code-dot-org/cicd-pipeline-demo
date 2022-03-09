@@ -3,9 +3,6 @@ Transform: AWS::Serverless-2016-10-31
 Description: Sample project application resources
 
 Parameters:
-  Environment:
-    Type: String
-    Description: The name of the environment being created
   DomainName:
     Type: String
     Description: The domain name under which this application will be created (ex. mydomain.org)
