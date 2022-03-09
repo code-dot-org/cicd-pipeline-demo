@@ -1,6 +1,11 @@
-#!/bin/sh
+#!/bin/sh -xe
 
-mkdir dist
+mkdir -p dist
 cp -r src/* dist
 
-sed -i '' 's/❌/✅/' ./dist/index.html
+# sed works differently in OSX vs Linux
+if [[ "$OSTYPE" == "darwin"* ]]; then
+  sed -i '' 's/❌/✅/' ./dist/index.html
+else
+  sed -i 's/❌/✅/' ./dist/index.html
+fi

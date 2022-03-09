@@ -1,0 +1,44 @@
+name: GitHub Actions Demo
+on: [push]
+jobs:
+  Explore-GitHub-Actions:
+    runs-on: ubuntu-latest
+    env:
+      TEMPLATE_FILE: cicd/3-app/app.template.yml
+      ARTIFACT_STORE: cicddemo-deps-artifactstore-1muobhcejf2so
+    steps:
+      - run: echo "🎉 The job was automatically triggered by a ${{ github.event_name }} event."
+      - run: echo "🐧 This job is now running on a ${{ runner.os }} server hosted by GitHub!"
+      - run: echo "🔎 The name of your branch is ${{ github.ref }} or ${GITHUB_REF_NAME} and your repository is ${{ github.repository }}."
+      - name: Get current date
+        id: date
+        run: echo "::set-output name=date::$(date +"%Y-%m-%dT%H:%M:%S%z")"
+      - name: Set artifact path
+        id: artifact-path
+        run: echo "::set-output name=path::github/branch/$GITHUB_REF_NAME/${{steps.date.outputs.date}}"
+      # - name: Configure AWS credentials from Dev account
+      #   uses: aws-actions/configure-aws-credentials@v1
+      #   with:
+      #     role-to-assume: arn:aws:iam::165336972514:role/GoogleUser
+      #     aws-region: us-east-1
+      - name: Check out repository code
+        uses: actions/checkout@v2
+      - run: echo "💡 The ${{ github.repository }} repository has been cloned to the runner."
+      - run: echo "🖥️ The workflow is now ready to test your code on the runner."
+      - name: List files in the repository
+        run: ls ${{ github.workspace }}
+      - name: build project
+        run: ./build.sh
+      - name: Lint cloudformation template
+        uses: scottbrenner/cfn-lint-action@v2
+        with:
+          command: cfn-lint -t ${{env.TEMPLATE_FILE}}
+      # - name: package cloudformation template
+      #   run: aws cloudformation package --template-file ${{env.TEMPLATE_FILE}} --output-template-file cloudformation-output.yml --s3-bucket ${{env.ARTIFACT_STORE}} --s3-prefix "${{steps.artifact-path.outputs.path}}/cloudformation-package"
+      - name: zip and upload artifacts
+        run: |
+          zip dist.zip dist -r
+          # aws s3 cp dist.zip "s3://${{env.ARTIFACT_STORE}}/${ARTIFACT_PATH}/"
+          # aws s3 cp cloudformation-output.yml "s3://${{env.ARTIFACT_STORE}}/${ARTIFACT_PATH}/"
+          # echo "Artifacts uploaded to S3, view them at https://console.aws.amazon.com/s3/buckets/${ARTIFACT_STORE}?region=us-east-1&prefix=${{steps.artifact-store.outputs.path}}/"
+      - run: echo "🍏 This job's status is ${{ job.status }}."

@@ -31,7 +31,7 @@ The CI/CD resources require certain IAM Roles, S3 Buckets, and other resources t
 
 ### cicd/2-cicd
 
-This directory contains CodeBuild and CodePipeline resources for building, verifying, and deploying the application. Templates here are parameterized to scope resources to a **target branch**, likely `main`. Any changes to files in this directory will need to be manually applied via the <cicd/2-cicd/deploy-pipeline.sh> script.
+This directory contains CodeBuild and CodePipeline resources for building, verifying, and deploying the application. Templates here are parameterized to scope resources to a **target branch**, likely `main`. Any changes to files in this directory will need to be manually applied via the <cicd/2-cicd/deploy-pipeline.sh> script. The respository must have "Code.org Deploy System (deploy-code-org)" listed as a repository Admin in order for webhooks to be created.
 
 ### cicd/3-app
 
