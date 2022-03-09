@@ -15,7 +15,7 @@ jobs:
         run: echo "::set-output name=date::$(date +"%Y-%m-%dT%H:%M:%S%z")"
       - name: Set artifact path
         id: artifact-path
-        run: echo "::set-output name=artifact-path::github/branch/${{ github.ref }}/${{steps.date.outputs.date}}"
+        run: echo "::set-output name=path::github/branch/${{ github.ref }}/${{steps.date.outputs.date}}"
       - name: Check out repository code
         uses: actions/checkout@v2
       - run: echo "💡 The ${{ github.repository }} repository has been cloned to the runner."
@@ -29,7 +29,7 @@ jobs:
         with:
           command: cfn-lint -t ${{env.TEMPLATE_FILE}}
       - name: test variable rendering
-        run: echo "${{steps.date.outputs.artifact-path}}/cloudformation-package"
+        run: echo "${{steps.artifact-path.outputs.path}}/cloudformation-package"
       - name: package cloudformation template
         run: aws cloudformation package --template-file ${{env.TEMPLATE_FILE}} --output-template-file cloudformation-output.yml --s3-bucket ${{env.ARTIFACT_STORE}} --s3-prefix "${{steps.artifact-path.outputs.path}}/cloudformation-package"
       - name: zip and upload artifacts
