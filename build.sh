@@ -1,8 +1,6 @@
-#!/bin/sh
+#!/bin/sh -xe
 
-set -e
-
-mkdir dist
+mkdir -p dist
 cp -r src/* dist
 
 sed -i '' 's/❌/✅/' ./dist/index.html
