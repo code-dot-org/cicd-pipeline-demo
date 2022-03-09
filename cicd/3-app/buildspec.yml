@@ -1,0 +1,34 @@
+version: 0.2
+env:
+  variables:
+    REF_NAME: ${GitHubBranch}
+    TEMPLATE_BUCKET: ${TemplateBucket}
+    OUTPUT_TEMPLATE: output.yml
+    SUB_DOMAIN: ${SubDomainName}
+    STAGING_SUB_DOMAIN: ${StagingSubDomainName}
+    TEMPLATE_CONFIG: configuration.json
+    STAGING_TEMPLATE_CONFIG: configuration-staging.json
+phases:
+  install:
+    runtime-versions:
+      ruby: 2.7
+      java: corretto11
+      python: 3.8
+    commands:
+      - gem install bundler
+      - pip install cfn-lint
+  build:
+    # This should be moved to a shell script if it gets more complicated.
+    commands:
+      - set -e
+      - BRANCH_NAME=${CODEBUILD_WEBHOOK_HEAD_REF##*/}
+      - ARTIFACT_PATH=branch/$BRANCH_NAME/$CODEBUILD_BUILD_NUMBER
+      - TEMPLATE_FILE=cicd/3-app/app.template.yml
+      - ./build.sh
+      - zip dist.zip dist -r
+      - aws s3 cp dist.zip "s3://${ARTIFACT_STORE}/${ARTIFACT_PATH}/"
+      - rm dist.zip
+      - cfn-lint $TEMPLATE_FILE
+      - aws cloudformation package --template-file $TEMPLATE_FILE --output-template-file cloudformation-output.yml --s3-bucket $ARTIFACT_STORE --s3-prefix "$ARTIFACT_PATH/cloudformation-package"
+      - aws s3 cp cloudformation-output.yml "s3://${ARTIFACT_STORE}/${ARTIFACT_PATH}/"
+      - echo "Artifacts uploaded to S3, view them at https://console.aws.amazon.com/s3/buckets/${ARTIFACT_STORE}?region=us-east-1&prefix=${ARTIFACT_PATH}/"

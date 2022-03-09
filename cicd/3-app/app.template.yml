@@ -1,0 +1,25 @@
+AWSTemplateFormatVersion: 2010-09-09
+Transform: AWS::Serverless-2016-10-31
+Description: Sample project application resources
+
+Parameters:
+  Environment:
+    Type: String
+    Description: The name of the environment being created
+  DomainName:
+    Type: String
+    Description: The domain name under which this application will be created (ex. mydomain.org)
+  SubDomainName:
+    Type: String
+    Description: The subdomain for this application (ex. 'app-test')
+
+Resources:
+  myDNSRecord:
+    Type: AWS::Route53::RecordSet
+    Properties:
+      HostedZoneName : !Sub ${DomainName}.
+      Name: !Sub ${SubDomainName}.${DomainName}.
+      ResourceRecords:
+      - 127.0.0.1
+      TTL: 900
+      Type: A
