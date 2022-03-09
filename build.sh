@@ -1,5 +1,7 @@
 #!/bin/sh
 
+set -e
+
 mkdir dist
 cp -r src/* dist
 
